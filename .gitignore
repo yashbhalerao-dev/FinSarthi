@@ -1,0 +1,50 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Next.js
+node_modules/
+frontend/.next/
+frontend/out/
+npm-debug.log*
+.turbo/
+
+# Prototype storage and uploads
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+backend/uploads/
+
+# Keep data directory layout without committing corpus binaries by default
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/schemes/*
+!data/schemes/.gitkeep
+data/metadata/*
+!data/metadata/.gitkeep
+
+# Local toolchain (portable Node, etc.)
+.tools/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

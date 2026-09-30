@@ -1,0 +1,1 @@
+"""FinSarthi FastAPI application package."""

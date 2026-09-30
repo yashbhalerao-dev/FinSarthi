@@ -1,642 +1,279 @@
-💰 FIN-03 — Financial Policy Discovery, Eligibility & Application Assistant
-
-«An Agentic AI-powered assistant that discovers government financial schemes, verifies eligibility, estimates benefits, and guides applicants through the application process.»
-
-""Theme" (https://img.shields.io/badge/Theme-Agentic%20AI-purple)"
-""Problem Statement" (https://img.shields.io/badge/FIN--03-Financial%20Policy%20Assistant-blue)"
-""AI" (https://img.shields.io/badge/AI-Agentic%20AI-orange)"
-""RAG" (https://img.shields.io/badge/Architecture-RAG-green)"
-""Status" (https://img.shields.io/badge/Status-In%20Development-yellow)"
-
----
+# FinSarthi
 
-🌟 Overview
+Financial Policy Discovery, Eligibility & Application Assistant
 
-Government subsidies, tax benefits, grants, and financial assistance programs can provide significant support to individuals and small businesses. However, discovering the right scheme, understanding its eligibility criteria, collecting the required documents, and completing the application process can be difficult.
+Team: NeuroSquad
 
-Information is often scattered across government portals, policy documents, PDFs, notifications, and different departmental websites.
+## Project Overview
 
-Our solution
+FinSarthi helps individuals and small businesses discover relevant government financial policies, understand explicit eligibility conditions, and see what to do next — without treating a language model as the decision maker.
 
-Financial Policy Discovery, Eligibility & Application Assistant is an Agentic AI system that acts as an intelligent financial-policy assistant.
-
-It analyzes applicant information and documents, discovers relevant government schemes, verifies eligibility against official rules, estimates potential benefits, identifies missing documents, and provides step-by-step application guidance.
-
-Instead of simply generating an AI response, the system uses specialized agents, verified policy sources, deterministic eligibility rules, and human-in-the-loop verification to produce transparent and trustworthy results.
-
----
+Users can be **Individuals** or **Small Businesses**. They provide profile information and supporting documents. The system then:
 
-🎯 Problem Statement
+- extracts and normalizes relevant attributes
+- discovers relevant **verified** financial policies from a controlled corpus
+- evaluates **explicit** eligibility conditions with a Python rule engine
+- identifies missing documents
+- provides source-backed benefit information **only when the policy source supports it**
+- shows evidence (citations) and official application routes
+- uses **NEEDS_VERIFICATION** when critical information is missing, conflicting, or uncertain
 
-People and small businesses frequently miss out on government financial benefits because:
+FinSarthi is decision support. Final eligibility, approval, and benefit amounts remain with the concerned government authority.
 
-- Government schemes are difficult to discover.
-- Eligibility criteria can be complicated.
-- Information is distributed across multiple sources.
-- Official guidelines are often lengthy PDF documents.
-- Applicants may not know which documents are required.
-- Benefit calculations can be difficult.
-- Different schemes have different conditions.
-- Borderline cases can be difficult to interpret.
-- AI-generated answers without sources can be unreliable.
+## Current Status
 
-The goal
+**50% Functional Prototype — Implementation in Progress**
 
-«Turn complex government policy information into a personalized, explainable, and actionable application assistant.»
+This repository is at **Phase 0 (repository foundation)**. The product architecture and technology choices are locked so the prototype can grow to 100% without a rewrite. The end-to-end workflow, APIs, OCR/retrieval, policy corpus, and eligibility engine are **not** complete yet.
 
----
+Do not treat this README as a claim that the full system is working.
 
-🤖 Why Agentic AI?
+## Core Architecture
 
-This project is designed around the principles of Agentic AI.
+```
+Next.js Frontend
+        ↓
+FastAPI API / Orchestrator
+        ↓
+Profile / Document / Policy / Retrieval / Eligibility / Evidence
+        ↓
+OCR + LangChain + Pinecone + Python Rules
+        ↓
+Evidence-grounded result
+```
 
-Instead of a simple:
-
-User → Chatbot → Answer
+Boundaries stay separate: ingestion, profile intelligence, retrieval, eligibility, and generation. Later work can scale one layer without replacing the product.
 
-our system follows an autonomous workflow:
+**Decision path (locked):**
 
-                         👤 USER
-                            │
-                            ▼
-                 ┌────────────────────┐
-                 │  Supervisor Agent  │
-                 └─────────┬──────────┘
-                           │
-          ┌────────────────┼─────────────────┐
-          ▼                ▼                 ▼
-   📄 Document        🔎 Research       ⚖️ Eligibility
-      Agent              Agent              Agent
-          │                │                 │
-          ▼                ▼                 ▼
-       OCR +          Policy/RAG       Rule Engine
-      Extraction        Search
-          │                │                 │
-          └────────────────┼─────────────────┘
-                           ▼
-                  💰 Benefit Agent
-                           │
-                           ▼
-                📋 Application Agent
-                           │
-                           ▼
-                ┌────────────────────┐
-                │  Decision Engine   │
-                └─────────┬──────────┘
-                          │
-               ┌──────────┴──────────┐
-               ▼                     ▼
-          ✅ Clear Result       ⚠️ Unclear Case
-               │                     │
-               ▼                     ▼
-        Applicant Guidance     👨‍💼 Human Review
+1. Retrieval finds policy evidence.
+2. Python rules evaluate explicit eligibility conditions.
+3. The LLM produces a readable, evidence-grounded explanation. It is **not** the authoritative eligibility decision maker.
+4. Generation receives retrieved evidence plus structured rule results. Policy facts, thresholds, benefits, and citations are not invented.
 
-The agents can:
+## Technology Stack
+
+Locked for this project:
 
-- Understand applicant goals
-- Extract information from documents
-- Identify missing information
-- Search relevant policies
-- Retrieve official scheme documents
-- Analyze eligibility requirements
-- Calculate potential benefits
-- Identify missing documents
-- Generate application instructions
-- Detect ambiguous cases
-- Escalate uncertain decisions to humans
-
----
-
-🧠 Core Features
-
-1. 📄 Intelligent Document Extraction
-
-Applicants can upload documents such as:
-
-- Income Certificate
-- Aadhaar / Identity documents
-- Business registration documents
-- GST documents
-- Bank documents
-- Caste/category certificates
-- Land/property documents
-- Other supporting documents
-
-The system extracts relevant information and converts it into structured applicant data.
-
-Example:
-
-{
-  "age": 24,
-  "state": "Maharashtra",
-  "occupation": "Small Business",
-  "annual_income": 210000,
-  "business_type": "MSME"
-}
-
----
-
-2. 🔎 AI-Powered Scheme Discovery
-
-The Research Agent searches the scheme knowledge base and retrieves potentially relevant government schemes.
-
-It considers applicant characteristics such as:
-
-- Age
-- Location
-- Income
-- Occupation
-- Business type
-- Category
-- Business turnover
-- Land ownership
-- Other scheme-specific criteria
-
----
-
-3. ⚖️ Verified Eligibility Checking
-
-The system does not rely solely on LLM reasoning for eligibility.
-
-Eligibility conditions are evaluated using a rule-based decision engine.
-
-Example:
-
-Annual Income ≤ ₹3,00,000       ✅
-Age ≥ 18                         ✅
-State = Maharashtra              ✅
-Business Type = MSME             ✅
-
-Result → ELIGIBLE
-
-Each condition is evaluated individually.
-
----
-
-4. 📊 Transparent Eligibility Explanation
-
-Instead of simply saying:
-
-«"You are eligible."»
-
-the system explains why.
-
-Example:
-
-✅ ELIGIBLE
-
-Reason:
-
-• Required income: ≤ ₹3,00,000
-• Verified income: ₹2,10,000
-• Requirement satisfied.
-
-• Required age: ≥ 18
-• Verified age: 24
-• Requirement satisfied.
-
----
-
-5. 💰 Benefit Estimation
-
-The system estimates the potential financial benefit based on the scheme rules.
-
-Example:
-
-Estimated Benefit
-────────────────────
-Up to ₹50,000
-
-Calculation:
-Eligible subsidy = 25% of eligible investment
-Eligible investment = ₹2,00,000
-Estimated subsidy = ₹50,000
-
-«Benefit estimates are presented as estimates and are subject to official scheme rules and approval.»
-
----
-
-6. 📋 Missing Document Detection
-
-The system compares:
-
-Required Documents
-        VS
-Uploaded Documents
-
-Example:
-
-Required Documents
-
-✅ Aadhaar
-✅ Income Certificate
-✅ Business Registration
-
-❌ Bank Statement
-⚠️ GST Certificate
-
-The applicant immediately knows what is missing.
-
----
-
-7. 📚 Source-Backed Decisions
-
-Every eligibility determination should be traceable to an official source.
-
-Example:
-
-Eligibility Rule
-──────────────────────────────
-Annual income must not exceed
-₹3,00,000.
-
-Source
-──────────────────────────────
-Official Scheme Guidelines
-
-Section
-──────────────────────────────
-Section 4.2 — Eligibility
-
-Evidence
-──────────────────────────────
-Applicant's verified income:
-₹2,10,000
-
-This provides explainability and traceability instead of unsupported AI answers.
-
----
-
-⚠️ Human-in-the-Loop
-
-Not every policy situation can be safely resolved automatically.
-
-If information is:
-
-- Missing
-- Contradictory
-- Ambiguous
-- Outside the supported rules
-- Difficult to interpret
-
-the system does not force an answer.
-
-Instead:
-
-⚠️ MANUAL REVIEW REQUIRED
-
-The available information is insufficient
-to confidently determine eligibility.
-
-Reason:
-Business classification could not be
-verified from the submitted documents.
-
-This prevents false-confidence decisions.
-
----
-
-🔄 Complete User Workflow
-
-1. 👤 Applicant enters basic information
-                ↓
-2. 📄 Uploads supporting documents
-                ↓
-3. 🤖 Document Agent extracts information
-                ↓
-4. 🔎 Research Agent finds relevant schemes
-                ↓
-5. 📚 Retrieves official policy documents
-                ↓
-6. ⚖️ Eligibility Engine checks every rule
-                ↓
-7. 💰 Benefit Agent estimates potential benefits
-                ↓
-8. 📋 Missing-document checker runs
-                ↓
-9. 🧠 Supervisor Agent combines results
-                ↓
-10. 📊 Personalized results are displayed
-                ↓
-11. 📝 Application steps are generated
-                ↓
-12. ⚠️ Unclear cases → Human Review
-
----
-
-🏗️ System Architecture
-
-┌─────────────────────────────────────────────────────┐
-│                    USER INTERFACE                   │
-│              Web Dashboard / Assistant              │
-└───────────────────────┬─────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│                 SUPERVISOR AGENT                    │
-│          Planning • Orchestration • Routing         │
-└───────────┬─────────────┬─────────────┬─────────────┘
-            │             │             │
-            ▼             ▼             ▼
-      Document Agent  Research Agent  Eligibility Agent
-            │             │             │
-            ▼             ▼             ▼
-          OCR          RAG/Search     Rule Engine
-            │             │             │
-            └─────────────┼─────────────┘
-                          ▼
-                  Benefit Calculator
-                          │
-                          ▼
-                 Application Agent
-                          │
-                          ▼
-                Human Review System
-                          │
-                          ▼
-                 Final User Report
-
----
-
-🧩 Major Components
-
-🧑‍💼 Supervisor Agent
-
-Responsible for:
-
-- Understanding the user's objective
-- Planning the workflow
-- Calling appropriate tools/agents
-- Combining results
-- Detecting incomplete information
-- Escalating uncertain cases
-
-📄 Document Agent
-
-Responsible for:
-
-- Reading uploaded documents
-- OCR
-- Information extraction
-- Document classification
-- Data validation
-
-🔎 Research Agent
-
-Responsible for:
-
-- Finding relevant schemes
-- Retrieving policy documents
-- Searching the knowledge base
-- Identifying applicable rules
-
-⚖️ Eligibility Agent
-
-Responsible for:
-
-- Evaluating eligibility criteria
-- Comparing applicant data with rules
-- Producing condition-by-condition results
-- Identifying borderline cases
-
-💰 Benefit Agent
-
-Responsible for:
-
-- Applying scheme-specific formulas
-- Estimating potential benefits
-- Explaining calculations
-
-📋 Application Agent
-
-Responsible for:
-
-- Identifying missing documents
-- Explaining application steps
-- Providing official application links
-- Preparing an application checklist
-
----
-
-🛠️ Technology Stack
-
-Layer| Technology
-Frontend| HTML, CSS, JavaScript, Bootstrap
-Backend| Python, Django / Django REST Framework
-Database| PostgreSQL
-AI| LLM
-Agent Framework| Agent orchestration framework
-RAG| Embeddings + Vector Database
-OCR| OCR engine / document parser
-Documents| PDF / DOCX / Images
-Rule Engine| Python-based deterministic rules
-Authentication| Django Authentication
-Deployment| Cloud / Containerized deployment
-
----
-
-📚 Knowledge Base
-
-The knowledge base contains verified government scheme information.
-
-Each scheme can contain:
-
-Scheme Name
-├── Government Department
-├── Description
-├── Target Beneficiaries
-├── Eligibility Rules
-├── Benefit Formula
-├── Required Documents
-├── Application Process
-├── Official Application Portal
-├── Official Guidelines
-└── Source / Last Updated
-
-The system prioritizes official government sources for policy decisions.
-
----
-
-🧪 Testing Strategy
-
-The system is tested using three major categories.
-
-✅ Clearly Eligible
-
-Applicant satisfies all required conditions.
-
-Expected:
-→ Eligible
-→ Benefit estimate
-→ Application guidance
-
-❌ Clearly Ineligible
-
-Applicant fails one or more mandatory conditions.
-
-Expected:
-→ Not Eligible
-→ Exact failed condition
-→ Source rule
-
-⚠️ Borderline / Unclear
-
-Information is incomplete or ambiguous.
-
-Expected:
-→ Manual Review
-→ Reason for uncertainty
-→ Information/document required
-
-This ensures the system does not produce false-confident decisions.
-
----
-
-🔐 Trust, Safety & Explainability
-
-The system is designed around several principles:
-
-🔹 Source First
-
-Eligibility decisions are backed by official policy documents.
-
-🔹 Rule-Based Verification
-
-Critical eligibility conditions are checked using deterministic rules.
-
-🔹 Explainable Decisions
-
-Users can understand why a scheme matched or failed.
-
-🔹 Human-in-the-Loop
-
-Uncertain cases are escalated instead of guessed.
-
-🔹 Data Minimization
-
-Only information required for scheme evaluation should be processed.
-
-🔹 Clear Disclaimer
-
-The system provides guidance and estimates. Final eligibility and benefit approval remain subject to the relevant government authority and official scheme rules.
-
----
-
-🎯 Expected Outcomes
-
-The system aims to provide:
-
-- ✅ Relevant government scheme discovery
-- ✅ Automated applicant information extraction
-- ✅ Verified eligibility matching
-- ✅ Explainable eligibility decisions
-- ✅ Benefit estimation
-- ✅ Missing-document detection
-- ✅ Application guidance
-- ✅ Official source references
-- ✅ Borderline-case detection
-- ✅ Human review workflow
-- ✅ Agentic task planning and execution
-
----
-
-🚀 Future Scope
-
-Potential future improvements include:
-
-- 🌐 Support for more states and central schemes
-- 🗣️ Multilingual voice assistant
-- 📱 Mobile application
-- 🔄 Automatic policy-update detection
-- 🧾 Advanced document verification
-- 🏦 Tax deduction and financial planning modules
-- 🔔 Personalized scheme alerts
-- 📊 Applicant financial dashboard
-- 🧠 More advanced multi-agent collaboration
-- 🔗 Integration with official government APIs where available
-
----
-
-💡 Example Use Case
-
-Scenario
-
-A 24-year-old small-business owner from Maharashtra wants to know what government financial assistance may be available.
-
-Input
-
-Age: 24
-State: Maharashtra
-Annual Income: ₹2,10,000
-Occupation: Small Business
-Business Type: MSME
-
-The applicant uploads supporting documents.
-
-Agentic Workflow
-
-Document Agent
-      ↓
-Extracts applicant information
-      ↓
-Research Agent
-      ↓
-Finds relevant schemes
-      ↓
-Eligibility Agent
-      ↓
-Checks official eligibility rules
-      ↓
-Benefit Agent
-      ↓
-Calculates estimated benefit
-      ↓
-Application Agent
-      ↓
-Generates application checklist
-
-Output
-
-🎯 Relevant Scheme Found
-
-Status: ✅ Eligible
-
-Estimated Benefit:
-Up to ₹50,000
-
-Eligibility:
-✓ Age requirement satisfied
-✓ Income requirement satisfied
-✓ Location requirement satisfied
-✓ Business requirement satisfied
-
-Missing Documents:
-❌ Bank Statement
-
-Next Steps:
-1. Obtain bank statement
-2. Prepare required documents
-3. Visit official application portal
-4. Submit application
-
----
-
-🏆 Project Vision
-
-«Make government financial assistance easier to discover, understand, and access — while keeping every important decision transparent, source-backed, and human-verifiable.»
-
----
-
-👨‍💻 Team
-
-FIN-03 — Financial Policy Discovery, Eligibility & Application Assistant
-
-Built as an Agentic AI solution focused on:
-
-Discover → Verify → Explain → Estimate → Guide → Escalate
-
----
-
-📌 Disclaimer
-
-This system is intended to assist users in discovering and understanding government financial schemes. Eligibility results and benefit amounts are estimates based on available information and the referenced scheme rules. Final eligibility, approval, and benefit amounts are determined by the respective government authority.
+- Next.js
+- TypeScript
+- Python
+- FastAPI
+- LangChain
+- Pinecone
+- Replaceable OCR adapter
+- Python eligibility rule engine
+- Evidence-grounded LLM
+- SQLite-compatible prototype storage
+- Git + GitHub
+
+## Key Features
+
+Scope is the **50% prototype** defined in the implementation blueprint. Items below are **planned** unless Phase 0 notes say they already exist.
+
+**Implemented in Phase 0**
+
+- Repository layout for frontend, backend, AI, data, docs, and scripts
+- FastAPI health endpoint (`GET /api/health`)
+- Next.js landing page and dashboard route shell
+- Environment variable template (`.env.example`)
+
+**Planned for the 50% milestone (not claimed as complete)**
+
+- Responsive landing, dashboard, and application workflow
+- Profile creation for an individual and a small-business profile
+- Document upload for PDF/image inputs
+- Document processing endpoint and a replaceable OCR/extraction adapter
+- Structured extracted profile with uncertain fields clearly marked
+- Controlled verified policy corpus (small number of official sources)
+- Policy metadata (name, source, jurisdiction, category, version/effective information where available)
+- Retrieval of relevant policy chunks (LangChain + Pinecone)
+- Python eligibility engine with three overall states and three condition states
+- Missing-document comparison
+- Benefit information only when supported by the policy source
+- Result screen: eligibility state, reasons, missing documents, evidence/source, application route
+- Demo cases: at least one individual, one small business, and one borderline (Needs Verification)
+- Automated tests for profile validation and eligibility rules
+
+## User Journey
+
+50% flow (screens and APIs land in later phases):
+
+Landing  
+→ Individual / Small Business  
+→ Profile  
+→ Document Upload  
+→ Extraction  
+→ Review / Correction  
+→ Policy Discovery  
+→ Eligibility Evaluation  
+→ Missing Documents  
+→ Evidence / Benefit  
+→ Official Application Route
+
+Result states shown to the user: **Eligible**, **Not Eligible**, or **Needs Verification**.
+
+## Eligibility States
+
+**Overall**
+
+- `ELIGIBLE`
+- `NOT_ELIGIBLE`
+- `NEEDS_VERIFICATION`
+
+**Condition-level**
+
+- `SATISFIED`
+- `NOT_SATISFIED`
+- `NEEDS_VERIFICATION`
+
+The **LLM is not the authoritative eligibility decision maker**. Explicit Python rules determine eligibility. If a critical field is missing, unreadable, or conflicting, the system prefers `NEEDS_VERIFICATION` rather than inventing a value. Unsupported benefit amounts are not generated.
+
+## Project Structure
+
+```
+FinSarthi/
+├── frontend/     # Next.js App Router UI
+├── backend/      # FastAPI API and orchestration
+├── ai/           # OCR adapter, RAG (LangChain/Pinecone), evidence generation
+├── data/         # Raw sources, processed text, scheme records, metadata
+├── docs/         # Architecture and later API / data-model / demo-case docs
+├── scripts/      # Policy ingest and demo seed (later phases)
+├── .env.example
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+| Path | Role |
+| --- | --- |
+| `frontend/` | User-facing workflow. Calls FastAPI. Must not hard-code scheme rules. |
+| `backend/` | HTTP API, validation, orchestration, persistence. |
+| `ai/` | Replaceable OCR, chunking, embeddings, retrieval, controlled generation. |
+| `data/` | Verified corpus and related files. Ingestion stays separate from the app. |
+| `docs/` | Architecture and contracts as they are implemented. |
+| `scripts/` | Offline ingest and seed utilities. |
+
+Target APIs (not all implemented yet):
+
+- `POST /api/profile`
+- `GET /api/profile/{id}`
+- `POST /api/documents/upload`
+- `POST /api/documents/process`
+- `POST /api/policies/search`
+- `POST /api/eligibility/evaluate`
+- `GET /api/results/{id}`
+- `GET /api/health` — **implemented in Phase 0**
+
+## Team
+
+| Member | Ownership |
+| --- | --- |
+| Yash Bhalerao | Backend, integration, orchestration, QA |
+| Vaibhav Khandare | Next.js frontend |
+| Poorva Sawant | OCR, extraction, RAG and retrieval |
+| Purva Thorat | Verified policy corpus, eligibility rules and tests |
+
+Work is expected on feature branches with pull-request review. See Development Phases for sequence.
+
+## Development Phases
+
+| Phase | Purpose |
+| --- | --- |
+| 0. Repo foundation | Initialize architecture, env, README, branches. App starts; structure is stable. **Current phase.** |
+| 1. Frontend | Complete prototype UX. All screens navigate with realistic state. |
+| 2. Backend | Profile, document, and result APIs so the frontend can call the backend. |
+| 3. Policy data | Verified demo corpus with metadata and source references. |
+| 4. Rules | Eligibility engine and missing-document comparison; known test cases classify correctly. |
+| 5. OCR | Extraction adapter and review path so document fields enter the profile pipeline. |
+| 6. Retrieval | Pinecone / LangChain retrieval returning relevant evidence with metadata. |
+| 7. Integration | Full vertical slice: upload → profile → retrieval → eligibility → result. |
+| 8. QA | Clear and borderline cases; expected outputs and traceable citations. |
+
+## 50% Definition of Done
+
+These criteria define the **50% milestone**. They are **not** all met yet.
+
+- A fresh clone can be installed using documented setup instructions.
+- The frontend starts and exposes the full prototype journey.
+- The backend health endpoint works.
+- At least one real (synthetic/redacted demo) document can pass through the processing pipeline.
+- Extracted profile fields can be reviewed and edited.
+- A controlled policy corpus is available.
+- Retrieval returns policy evidence relevant to a test profile.
+- The eligibility engine produces all three overall decision states across test cases.
+- The result page displays reasons, benefits where source-supported, missing documents, and source evidence.
+- At least two end-to-end demo profiles work: one individual and one small business.
+- At least one borderline case produces Needs Verification.
+- No secrets are committed.
+- This README explains architecture, setup, demo cases when they exist, and current limitations.
+- All four team members have genuine contributions in their assigned modules.
+
+## Setup (Phase 0)
+
+Copy environment variables. Never commit a real `.env`.
+
+```bash
+cp .env.example .env
+```
+
+**Backend** (Python 3.12+):
+
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --app-dir .
+```
+
+Health check: `GET http://127.0.0.1:8000/api/health` → `{ "status": "ok" }`.
+
+**Frontend** (Node.js 20+):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`. Landing includes a Start control that navigates to the dashboard shell.
+
+## Security & Data Handling
+
+- Use **synthetic or redacted** demo documents for development and presentation. Do not use real personal identity documents unless explicitly authorized and necessary.
+- Secrets and API keys belong in environment variables only. Provide `.env.example` without credentials.
+- Never commit Pinecone, OCR, LLM, or other API keys.
+- Do not store unnecessary personal data (data minimization).
+- Document storage is behind an abstraction so encryption, retention, and deletion can be added later.
+- FinSarthi is **decision support**. It does not replace authority approval of eligibility or benefits.
+
+## Future Expansion
+
+The 50% build is the first half of the same product, not a throwaway demo.
+
+| 50% foundation | 100% direction (later) |
+| --- | --- |
+| Controlled policy corpus | Source ingestion, approval, versioning |
+| OCR adapter | Additional providers, confidence checks, classification |
+| Basic retrieval | Hybrid retrieval, reranking, monitoring |
+| Static Python rules | Rule authoring, richer conditions, governance |
+| Prototype result flow | Accounts, history, audit, case management |
+| Official application route | Guided application assistance |
+| SQLite-compatible prototype store | Production storage, security, retention |
+| Single-language prototype UX | Localization and accessibility expansion |
+
+Policy data, rules, and services stay modular so the corpus can grow without burying scheme logic in the frontend or in prompts.
+
+## Current Limitations
+
+- The prototype uses a **controlled** (small, manually verified) policy corpus, not national-scale coverage.
+- OCR and retrieval may use **adapters or stubs** during early development; they are not production OCR or a finished RAG pipeline in Phase 0.
+- Production-scale ingestion, policy governance, user accounts, audit trails, advanced retrieval, localization, and related 100% work are **future phases**.
+- No verified scheme names, thresholds, or benefit amounts are published in this repository until they are taken from official sources in the policy-data phase.
+- Feature branches and remaining APIs are not part of the Phase 0 runtime.
+
+## License
+
+See [LICENSE](LICENSE).
